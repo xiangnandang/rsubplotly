@@ -1,15 +1,18 @@
-Package: dBMmisc
+Package: rsubplotly
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Subplot Visuals using Plotly for Exploratory Overview of Large Datasets
+Version: 0.0.1
+Authors@R: c(person("Xiangnan", "Dang", email = "dang_xiangnan@lilly.com", role = c("aut", "cre"))
+Maintainer: Xiangnan Dang <dang_xiangnan@lilly.com>
+Description: Subplot Visuals using Plotly for Exploratory Overview of Large 
+    Datasets.
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
+    assertthat,
+    graphics,
     magrittr,
-    plotly
+    plotly,
+    rlang
 RoxygenNote: 7.1.0

@@ -1,3 +1,1 @@
-# change name to dBMmisc to conform to r package name
-
-# Across-study functions developed for DH_TTI dBM studies
+# subplot visuals using r plotly for quick exploratory overview of large datasets

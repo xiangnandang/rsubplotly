@@ -4,16 +4,16 @@
 \alias{heatmap_plotly}
 \title{Plot heatmap with plotly.}
 \usage{
-heatmap_plotly(df, x_var, y_var, z_var)
+heatmap_plotly(df, x, y, z)
 }
 \arguments{
 \item{df}{A data.frame.}
 
-\item{x_var}{A character. Character of the column to be used for x axis.}
+\item{x}{A character. Character of the column to be used for x axis.}
 
-\item{y_var}{A character. Character of the column to be used for y axis.}
+\item{y}{A character. Character of the column to be used for y axis.}
 
-\item{z_var}{A character. Character of the column to be used for color axis.}
+\item{z}{A character. Character of the column to be used for color axis.}
 }
 \value{
 A plotly object of heatmap type.

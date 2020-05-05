@@ -41,6 +41,145 @@ heatmap_plotly <-
 
 
 
+
+#' Plot multi-trace 1-d histograms with plotly.
+#'
+#' \code{histogram_1d_plolty} plots multi-trace 1-d histograms with plotly.
+#'
+#' This is a function to plot multi-trace 1-d histograms using plotly package.
+#' Multiple variables can be plot, and organized as subplots. Groupby
+#' variable(s) can be controlled. The plots can be both vertical
+#' (default) and horizontal orientations. It can return either subplots or a
+#' list of plotly objects.
+#'
+#' @param df A data.frame.
+#' @param var A character or (named) charactor vector. Character of the
+#'   columns to be used for plotting histograms.
+#' @param groupby_var A character, or character vector. Character of the
+#'   column(s) to be used for grouping.
+#' @param plot_type for future use, currently "histogram".
+#' @param breaks breaks from graphics::hist.
+#' @param density TRUE for density, FALSE for counts.
+#' @param orientation "v" or "h", for "vertical" and "horizontal". v (vertical)
+#'   is the common x/y arrangement e.g. top edge, h (horizontal) is the uncommon
+#'    x/y arrangement e.g. right edge. Not currently used.
+#' @param margin float. margin argument in subplot call.
+#' @param return_type "subplot" or "list". return_type should be subplot or list
+#'    of plots.
+#'
+#' @return A plotly (subplot) object or a list of plotly objects depending on
+#'   return_type. The subplot is ncol = length(in_var), nrow = length(de_var)
+#'
+#' @export
+#'
+#' @importFrom magrittr %>%
+#' @importFrom plotly plot_ly add_trace layout subplot
+#' @importFrom rlang arg_match
+#' @importFrom graphics hist
+#'
+#' @examples
+#' \dontrun{
+#' histogram_1d_plotly(df,
+#'   var = c("column1", "column2"),
+#'   groupby_var = c("group_column1", "group_column2"),
+#'   breaks = "FD",
+#'   density = TRUE,
+#'   margin = 0.02,
+#'   orientation = "v", return_type = "subplot")
+#' }
+#'
+histogram_1d_plotly <-
+  function(df,
+           var,
+           groupby_var = NULL,
+           plot_type = c("histogram"),
+           breaks = "FD", # breaks from graphics::hist
+           density = TRUE, # for count, use density FALSE
+           orientation = c("v", "h"),
+           margin = 0.02,
+           return_type = c("subplot", "list"))
+  {
+    plot_type <- arg_match(plot_type)
+    orientation <- arg_match(orientation)
+    return_type <- arg_match(return_type)
+
+    if (!is.null(groupby_var)) {
+      groupby_var <- unlist(groupby_var) # in case groupby_var supplied as list, convert to vector
+      split_list <-
+        lapply(groupby_var, function(x) df[[x]])
+    }
+
+    p <- rep(list(plot_ly()), length(var))
+
+    for (i in seq_along(var)) {
+      if (!is.null(groupby_var)) {
+        df_var_split <-
+          df %>%
+          select(!!c(groupby_var, var)) %>%
+          split(split_list) # normal syntax would be split(df, list(df$a, df$b)), thus the construction of split_list
+      } else {
+        df_var_split <-
+          df %>%
+          select(!!var) %>%
+          list() # convert to list so that next level for loop can be correctly handled
+      }
+
+
+      for (j in seq_along(df_var_split)) {
+        h <-
+          df_var_split[[j]][[var[[i]]]] %>%
+          hist(breaks = breaks, right = FALSE, plot = FALSE)
+
+        name <- ifelse(is.null(groupby_var), var[[i]],
+                       paste0(var[[i]], " | ",
+                              paste(groupby_var,
+                                    df_var_split[[j]] %>% distinct(!!!syms(groupby_var)) %>% .[1,],
+                                    sep = ": ", collapse = "; ")))
+
+        color <- ifelse(is.null(groupby_var), var[[i]],
+                       paste(groupby_var,
+                                    df_var_split[[j]] %>% distinct(!!!syms(groupby_var)) %>% .[1,],
+                                    sep = ": ", collapse = "; "))
+
+        p[[i]] <-
+          p[[i]] %>%
+          add_trace(x = h$mids,
+                    y = if (density) h$density else h$counts, # can't use ifelse() as it's scalar form
+                    type = "bar",
+                    name = name,
+                    color = color,
+                    alpha = 0.5
+          )
+      }
+
+      p[[i]] <-
+        p[[i]] %>%
+        layout(
+          barmode = "overlay",
+          yaxis = list(title = var[[i]]),
+          annotations = list(
+            text = var[[i]],
+            x = 0.5, y = 0.9,
+            xref = "paper", yref = "paper", showarrow = FALSE,
+            xanchor = "center"
+          )
+        )
+    }
+    if (return_type == "list") {
+      return(p)
+    }
+    if (return_type == "subplot") {
+      p <-
+        subplot(p, nrows = length(var),
+                margin = margin, shareX = FALSE, shareY = FALSE, titleX = TRUE, titleY = TRUE)
+      return(p)
+    }
+  }
+
+
+
+
+
 #' Plot multi-trace subplots with plotly.
 #'
 #' \code{subplotly} plots multi-trace subplots with plotly.

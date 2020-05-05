@@ -2,6 +2,7 @@
 
 export(heatmap_plotly)
 export(multi_trace_plotly)
+export(subplotly)
 importFrom(assertthat,assert_that)
 importFrom(magrittr,"%>%")
 importFrom(plotly,add_trace)
